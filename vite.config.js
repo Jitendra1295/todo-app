@@ -14,7 +14,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.jsx'],
+    include: ['src/**/*.test.{js,jsx}'],
   },
   // Set base to '/' for GitHub Pages user/site (username.github.io)
   // For project sites (username.github.io/repo-name), set base to '/repo-name/'

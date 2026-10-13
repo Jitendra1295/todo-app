@@ -7,9 +7,25 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
+const allowedOrigins = new Set([
+  'http://localhost:5173',
+  'http://localhost:5174',
+  ...(process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean),
+])
 
-app.use(cors())
-app.use(express.json())
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true)
+      return
+    }
+    callback(new Error(`Origin ${origin} is not allowed by CORS`))
+  },
+}))
+app.use(express.json({ limit: '20kb' }))
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -137,13 +153,13 @@ function localHeuristicParser(rawText, referenceDate = new Date()) {
 
 // AI Task Parsing Route with Structured JSON Output
 app.post('/api/ai/parse-task', async (req, res) => {
-  const { prompt, apiKey, referenceDate } = req.body || {}
+  const { prompt, referenceDate } = req.body || {}
 
   if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
     return res.status(400).json({ error: 'Prompt is required.' })
   }
 
-  const effectiveApiKey = apiKey || process.env.GEMINI_API_KEY
+  const effectiveApiKey = process.env.GEMINI_API_KEY
   const refDate = referenceDate ? new Date(referenceDate) : new Date()
 
   // If no Gemini API key is configured, use the intelligent fallback engine

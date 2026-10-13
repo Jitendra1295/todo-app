@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: todo-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm run server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://todo-app-ten-zeta-67.vercel.app
+      - key: GEMINI_API_KEY
+        sync: false

@@ -4,20 +4,19 @@
  * with automatic fallback parsing if backend or LLM is offline.
  */
 
-export async function parseTaskWithAI(prompt, customApiKey = '') {
+export async function parseTaskWithAI(prompt) {
   if (!prompt || !prompt.trim()) {
     throw new Error('Please enter a task description.')
   }
 
-  const storedKey = customApiKey || localStorage.getItem('daymark_gemini_key') || ''
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
   const payload = {
     prompt: prompt.trim(),
-    apiKey: storedKey,
     referenceDate: new Date().toISOString(),
   }
 
   try {
-    const response = await fetch('/api/ai/parse-task', {
+    const response = await fetch(`${apiBaseUrl}/api/ai/parse-task`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

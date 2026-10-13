@@ -22,7 +22,7 @@ Type tasks naturally in everyday language, and the AI automatically extracts all
 * **LLM Integration:** Powered by **Google Gemini 2.5 Flash** via the official `@google/genai` SDK with strict JSON schema enforcement.
 * **Dual-Engine Fallback:** Built-in semantic NLP heuristic engine that extracts tasks instantly even when offline or if no API key is provided.
 * **Inspect Structured JSON:** Live preview modal to inspect the raw structured JSON payload returned by the LLM.
-* **Flexible API Key Setup:** Configure your Gemini API key either via `.env` file or directly in the UI settings dialog.
+* **Secure API Key Setup:** Configure the Gemini API key as a backend environment variable; it is never stored in browser storage or sent by the frontend.
 
 ---
 
@@ -54,7 +54,7 @@ Type tasks naturally in everyday language, and the AI automatically extracts all
 │  - AI Creator Page (/ai)                     │
 │  - Responsive & Minimalist CSS Design System │
 └──────────────────────┬───────────────────────┘
-                       │ (Proxy: /api -> :3001)
+                       │ Local proxy or VITE_API_BASE_URL
                        ▼
 ┌──────────────────────────────────────────────┐
 │           Node.js Express Server             │
@@ -83,7 +83,7 @@ Type tasks naturally in everyday language, and the AI automatically extracts all
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-* **Node.js:** v18.0.0 or higher
+* **Node.js:** v20.19.0 or higher
 * **npm:** v9.0.0 or higher
 
 ### 2. Installation
@@ -103,10 +103,26 @@ Add your Google Gemini API key in `.env`:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 PORT=3001
+FRONTEND_URL=http://localhost:5173,http://localhost:5174
+VITE_API_BASE_URL=
 ```
-> **Note:** If `GEMINI_API_KEY` is not provided, the application automatically uses the built-in heuristic parser, allowing full local usage with zero configuration!
+`GEMINI_API_KEY` is read only by the Express server. Do not expose it through a `VITE_` variable. Leave `VITE_API_BASE_URL` blank for local development; Vite proxies `/api` to `localhost:3001`.
 
-### 4. Running Locally
+### 4. Deploy the backend to Render
+
+This repository includes a [`render.yaml`](./render.yaml) Blueprint. In Render, create a new Blueprint and select this GitHub repository. Render will use the root `package.json`, run `npm ci`, start the API with `npm run server`, and check `/api/health`.
+
+Set `GEMINI_API_KEY` in the Render service's Environment settings. `FRONTEND_URL` is configured in the Blueprint for the production Vercel origin; add any additional allowed origins as a comma-separated list.
+
+After Render deploys, copy the service URL (for example, `https://todo-api-example.onrender.com`) and add this environment variable to the Vercel project:
+
+```env
+VITE_API_BASE_URL=https://your-render-service.onrender.com
+```
+
+Set it for the Production environment, then redeploy the Vercel frontend. Do not add a trailing slash to the URL. The backend allows the configured frontend origin and local Vite origins.
+
+### 5. Running Locally
 Run both the Express backend API and Vite frontend dev server concurrently:
 ```bash
 npm run dev
@@ -126,7 +142,6 @@ Parses a natural language task description into a structured JSON task object.
 ```json
 {
   "prompt": "Remind me to call Rahul tomorrow at 10 AM and finish it before Friday.",
-  "apiKey": "optional_override_key",
   "referenceDate": "2026-10-13T12:00:00.000Z"
 }
 ```
@@ -160,7 +175,7 @@ Parses a natural language task description into a structured JSON task object.
 | `npm run dev` | Runs both Node.js backend server and Vite frontend concurrently |
 | `npm run server` | Runs only the Node.js Express server on port 3001 |
 | `npm run dev:frontend` | Runs only the Vite frontend dev server |
-| `npm test` | Runs the test suite via Vitest (5/5 tests passing) |
+| `npm test` | Runs the test suite via Vitest |
 | `npm run build` | Builds production bundle with Vite |
 | `npm run lint` | Runs ESLint validation across project files |
 | `npm run preview` | Previews the production build locally |

@@ -17,8 +17,6 @@ function AiTaskCreatorPage({ onAddTask }) {
   const [error, setError] = useState('')
   const [extractedTask, setExtractedTask] = useState(null)
   const [showJson, setShowJson] = useState(false)
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false)
-  const [customKey, setCustomKey] = useState(() => localStorage.getItem('daymark_gemini_key') || '')
 
   const handleParse = async (textToParse = prompt) => {
     if (!textToParse.trim()) {
@@ -29,22 +27,13 @@ function AiTaskCreatorPage({ onAddTask }) {
     setLoading(true)
 
     try {
-      const result = await parseTaskWithAI(textToParse, customKey)
+      const result = await parseTaskWithAI(textToParse)
       setExtractedTask(result)
     } catch (err) {
       setError(err.message || 'Failed to parse task with AI.')
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSaveApiKey = () => {
-    if (customKey.trim()) {
-      localStorage.setItem('daymark_gemini_key', customKey.trim())
-    } else {
-      localStorage.removeItem('daymark_gemini_key')
-    }
-    setShowApiKeyModal(false)
   }
 
   const handleConfirmAndAdd = () => {
@@ -71,38 +60,7 @@ function AiTaskCreatorPage({ onAddTask }) {
           title="AI Task Creator"
           description="Type your task naturally. AI extracts titles, deadlines, reminders, priority, and categories instantly."
         />
-        <button
-          type="button"
-          className="api-key-button"
-          onClick={() => setShowApiKeyModal(!showApiKeyModal)}
-          title="Configure Gemini API Key"
-        >
-          ⚙️ {customKey ? 'Gemini Key Configured' : 'API Key Setup'}
-        </button>
       </div>
-
-      {showApiKeyModal && (
-        <div className="api-key-banner">
-          <div className="api-key-copy">
-            <strong>Google Gemini API Key (Optional)</strong>
-            <p>
-              Leave blank to use the smart built-in NLP parser, or paste your Gemini key to use live Gemini 2.5 Flash.
-            </p>
-          </div>
-          <div className="api-key-inputs">
-            <input
-              type="password"
-              placeholder="Paste AIzaSy... API key"
-              value={customKey}
-              onChange={(e) => setCustomKey(e.target.value)}
-              className="key-input"
-            />
-            <button type="button" className="primary-button" onClick={handleSaveApiKey}>
-              Save
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Main Prompt Card */}
       <div className="ai-input-card">
