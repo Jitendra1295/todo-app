@@ -63,4 +63,44 @@ describe('task app', () => {
     expect(within(taskList).getByText('Pick up groceries')).toBeTruthy()
     expect(within(taskList).queryByText('Review project proposal')).toBeNull()
   })
+
+  it('uses AI Task Creator to extract and add structured task', async () => {
+    const user = userEvent.setup()
+    render(<MemoryRouter><App /></MemoryRouter>)
+
+    // Navigate to AI Creator
+    await user.click(screen.getByRole('link', { name: /ai creator/i }))
+
+    expect(screen.getByText('AI Task Creator')).toBeTruthy()
+    expect(screen.getByText('NATURAL LANGUAGE TO ACTION')).toBeTruthy()
+
+    // The default prompt is set: "Remind me to call Rahul tomorrow at 10 AM and finish it before Friday."
+    const parseBtn = screen.getByRole('button', { name: /parse with ai/i })
+    await user.click(parseBtn)
+
+    // Wait for extracted result card
+    await waitFor(() => {
+      expect(screen.getByText('Extracted Structured Task')).toBeTruthy()
+    })
+
+    // Verify extracted fields
+    expect(screen.getByDisplayValue('Call Rahul')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /inspect json/i })).toBeTruthy()
+
+    // Inspect JSON toggle
+    await user.click(screen.getByRole('button', { name: /inspect json/i }))
+    expect(screen.getByText('STRUCTURED JSON OUTPUT')).toBeTruthy()
+
+    // Add to My Tasks
+    await user.click(screen.getByRole('button', { name: /add to my tasks/i }))
+
+    // Confirms user is back on home page with new task added
+    await waitFor(() => {
+      expect(screen.getByText('Call Rahul')).toBeTruthy()
+      const tasks = JSON.parse(localStorage.getItem('daymark-tasks'))
+      expect(tasks[0].title).toBe('Call Rahul')
+      expect(tasks[0].priority).toBe('High')
+    })
+  })
 })
+

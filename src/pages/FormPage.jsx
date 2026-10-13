@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import PageHeading from '../components/PageHeading.jsx'
 
 function FormPage({ onSubmit, onCancel }) {
@@ -13,6 +14,18 @@ function FormPage({ onSubmit, onCancel }) {
   return (
     <section className="content form-content">
       <PageHeading eyebrow="MAKE IT HAPPEN" title="A new task" description="Write it down, then take it one step at a time." />
+
+      <Link to="/ai" className="ai-switch-banner">
+        <div className="ai-switch-content">
+          <span className="ai-switch-sparkle">✨</span>
+          <div>
+            <strong>Try AI Task Creator</strong>
+            <p>Type naturally: <em>"Remind me to call Rahul tomorrow at 10 AM before Friday"</em></p>
+          </div>
+        </div>
+        <span className="ai-switch-cta">Try AI ↗</span>
+      </Link>
+
       <form className="task-form" onSubmit={submit}>
         <label className="field-label" htmlFor="task-title">What needs doing?<span>REQUIRED</span></label>
         <input autoFocus required id="task-title" className="title-input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Send the project update" maxLength={100} />
