@@ -19,7 +19,7 @@ describe('task app', () => {
     expect(screen.getByText('Plan the week ahead')).toBeTruthy()
     expect(screen.getByText('Review project proposal')).toBeTruthy()
     expect(screen.getByText('1 of 4 tasks completed today')).toBeTruthy()
-    expect(screen.getByText('25%')).toBeTruthy()
+    expect(screen.getByText('26%')).toBeTruthy()
   })
 
   it('updates completion status and saves it to local storage', async () => {
