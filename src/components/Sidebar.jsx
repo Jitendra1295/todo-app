@@ -15,9 +15,9 @@ function Sidebar({ openTaskCount }) {
         <NavItem to="/ai" icon="✦" label="AI Creator" badge="AI" />
       </nav>
       <div className="sidebar-bottom">
-        <div className="avatar">JD</div>
+        <div className="avatar">JP</div>
         <div>
-          <strong>Jamie Davis</strong>
+          <strong>Jitendra Patel</strong>
           <span>Personal space</span>
         </div>
         <span className="more">···</span>
